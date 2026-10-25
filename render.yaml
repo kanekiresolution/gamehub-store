@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: gamehub-telegram-shop
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    plan: free
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_ID
+        sync: false
+      - key: WEBAPP_URL
+        sync: false
+      - key: PAYMENT_DETAILS
+        sync: false
