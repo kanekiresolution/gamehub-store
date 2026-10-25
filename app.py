@@ -40,11 +40,14 @@ def create_order():
         return jsonify({"ok": False, "error": "Некорректная сумма"}), 400
 
     lines = []
-    for item in items[:30]:
-        title = str(item.get("title", "Товар"))[:100]
-        qty = max(1, min(99, int(item.get("qty", 1))))
-        price = max(0, float(item.get("price", 0)))
-        lines.append(f"• {title} × {qty} — {price * qty:.0f} ₽")
+    try:
+        for item in items[:30]:
+            title = str(item.get("title", "Товар"))[:100]
+            qty = max(1, min(99, int(item.get("qty", 1))))
+            price = max(0, float(item.get("price", 0)))
+            lines.append(f"• {title} × {qty} — {price * qty:.0f} ₽")
+    except (AttributeError, TypeError, ValueError):
+        return jsonify({"ok": False, "error": "Некорректные данные заказа"}), 400
 
     message = (
         "🛒 НОВЫЙ ЗАКАЗ\n\n" + "\n".join(lines) +
@@ -105,10 +108,23 @@ def run_bot():
         await tg_app.updater.start_polling()
         while True:
             await asyncio.sleep(3600)
-    asyncio.run(runner())
+    try:
+        asyncio.run(runner())
+    except Exception:
+        app.logger.exception("Telegram-бот остановился с ошибкой")
+
+_bot_started = False
+
+def start_bot_once():
+    global _bot_started
+    if _bot_started or not BOT_TOKEN:
+        return
+    _bot_started = True
+    threading.Thread(target=run_bot, daemon=True).start()
+
+start_bot_once()
 
 if __name__ == "__main__":
-    if BOT_TOKEN:
-        threading.Thread(target=run_bot, daemon=True).start()
     port = int(os.environ.get("PORT", "8080"))
     app.run(host="0.0.0.0", port=port)
+    
