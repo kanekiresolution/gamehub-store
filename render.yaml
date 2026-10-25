@@ -1,9 +1,10 @@
+
 services:
   - type: web
-    name: gamehub-telegram-shop
+    name: gamehub-store
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    startCommand: gunicorn app:app
     plan: free
     envVars:
       - key: BOT_TOKEN
@@ -14,3 +15,4 @@ services:
         sync: false
       - key: PAYMENT_DETAILS
         sync: false
+        
