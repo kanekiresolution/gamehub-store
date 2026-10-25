@@ -74,13 +74,13 @@ def create_order():
 
     return jsonify({"ok": True, "message": "Заказ создан. Дождитесь подтверждения продавца."})
 
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if WEBAPP_URL:
-        keyboard = [[InlineKeyboardButton("🛍 Открыть магазин", web_app=WebAppInfo(url=WEBAPP_URL))]]
-        await update.message.reply_text(
-            "Добро пожаловать в GameHub!\nВыберите товары в каталоге и отправьте заказ. "
-            "Оплата подтверждается вручную.",
-            reply_markup=InlineKeyboardMarkup(keyboard)
+    context.user_data.pop("draft", None)
+    await update.message.reply_text(
+        "Добро пожаловать в DWGhub!\nВыбери игру:",
+        reply_markup=menu_markup()
+    
         )
     else:
         await update.message.reply_text(
